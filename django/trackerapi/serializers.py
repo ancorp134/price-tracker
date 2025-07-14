@@ -1,27 +1,28 @@
 from .models import UserModel,TrackedProduct,PriceHistory
-from rest_framework.serializers import ModelSerializer
+from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 
 
-class UserSerializer(ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
     class Meta:
         model = UserModel
-        fields = ['id','first_name','last_name','email']
-        read_only_fields = ['password']
-    
-    def create(self, validate_data):
-        validate_data['password'] = make_password(validate_data['password'])
-        return super().create(validate_data)
+        fields = ['id', 'first_name', 'last_name', 'email', 'password']
+
+    def create(self, validated_data):
+        validated_data['password'] = make_password(validated_data['password'])
+        return super().create(validated_data)
     
 
-class TrackedProductSerializer(ModelSerializer):
+class TrackedProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = TrackedProduct
         fields = ['product_url','product_title','current_price','target_price','current_price']
         read_only_fields = ['user']
 
 
-class PriceHistorySerializer(ModelSerializer):
+class PriceHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = PriceHistory
         fields = ['price']

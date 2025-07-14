@@ -11,18 +11,20 @@ from django.contrib.auth.hashers import check_password
 
 
 def get_authenticated_user(request):
+
     header = request.headers.get('Authorization')
 
     if not header:
         return None
-
-    token = header.split(' ')[0]
+    
     try:
-        decode_token = jwt.decode(settings.SECRET_KEY,token,algorithms=['HS256'])
-        user_id = decode_token['id']
+        token = header.split(' ')[1]
+        print(token)
+        decode= jwt.decode(token,settings.SECRET_KEY, algorithms=["HS256"])
+        user_id = decode.get('user_id')
         user = UserModel.objects.get(id=user_id)
         return user
-    except:
+    except Exception:
         return None
 
 def get_token_for_user(user):
@@ -68,9 +70,32 @@ class UserLoginView(APIView):
         )
     
 class UserRegistrationView(APIView):
+
     def post(self,request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data,status=200)
         return Response(serializer.errors,status=400)
+    
+    
+class UserProfileUpdateView(APIView):
+
+    def patch(self, request, id):
+        auth_user = get_authenticated_user(request)
+
+        if auth_user is None:
+            return Response({"error": "User not authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        
+        if str(auth_user.id) != id:
+            return Response({"error": "You can only update your own profile"}, status=status.HTTP_403_FORBIDDEN)
+        
+        user = get_object_or_404(UserModel, id=id)
+        
+        serializer = UserSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

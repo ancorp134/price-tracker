@@ -10,7 +10,7 @@ class UserModel(models.Model):
     middle_name = models.CharField(max_length=20, blank=True)
     last_name = models.CharField(max_length=20, null=False)
     email = models.EmailField(null=False, unique=True)
-    password = models.CharField(max_length=10, null=False)
+    password = models.CharField(max_length=256, null=False)
     verified = models.BooleanField(default=False)
 
     def __str__(self):

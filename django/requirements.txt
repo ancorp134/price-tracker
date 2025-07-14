@@ -1,0 +1,9 @@
+Django>=4.2
+djangorestframework
+psycopg2-binary
+dj-database-url
+python-decouple
+gunicorn
+django-nanoid-field==0.1.4
+nanoid==2.0.0
+djangorestframework-simplejwt==5.3.1

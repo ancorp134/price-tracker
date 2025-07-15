@@ -1,0 +1,92 @@
+import requests
+from bs4 import BeautifulSoup
+
+# HEADERS = {"User-Agent": "Mozilla/5.0"}
+
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Referer": "https://www.amazon.in/"
+}
+
+def parse_amazon_product(url):
+    try:
+        r = requests.get(url, headers=HEADERS, timeout=10)
+        r.raise_for_status()
+    except requests.RequestException as e:
+        print(f"❌ HTTP error fetching {url}: {e}")
+        return None
+
+    soup = BeautifulSoup(r.content, "html.parser")
+
+    # Check if we were blocked
+    if soup.find("form", action="/errors/validateCaptcha"):
+        print("🚧 CAPTCHA detected on this page. Scraper blocked.")
+        return None
+
+    # Safely extract data
+    title_tag = soup.find(id="productTitle")
+    title = title_tag.get_text(strip=True) if title_tag else None
+
+    price_el = soup.find("span", {"class": "a-price-whole"})
+    if not price_el:
+        # Try another selector sometimes used by Amazon
+        price_el = soup.find("span", {"class": "a-offscreen"})
+
+    if price_el:
+        price_text = price_el.get_text(strip=True).replace(",", "").replace("₹", "")
+        try:
+            price = float(price_text)
+        except ValueError:
+            price = None
+    else:
+        price = None
+
+    img_tag = soup.find(id="landingImage")
+    img = img_tag["src"] if img_tag else None
+
+    # Debug logs
+    if not title or not price or not img:
+        print(f"⚠️ Missing fields for {url}: title={title}, price={price}, image={img}")
+
+    return {
+        "site": "amazon",
+        "url": url,
+        "title": title,
+        "price": price,
+        "image": img
+    }
+   
+
+def get_amazon_featured():
+    url = "https://www.amazon.in/gp/bestsellers/"
+    r = requests.get(url, headers=HEADERS)
+    soup = BeautifulSoup(r.content, "html.parser")
+
+    items = []
+    for div in soup.find_all("div", class_="p13n-sc-uncoverable-faceout"):
+        title = div.find("img")["alt"]
+        img = div.find("img")["src"]
+        product_url = "https://www.amazon.in" + div.find("a")["href"]
+        price_el = div.find("span", {"class": "a-price-whole"})
+        if not price_el:
+            # Try another selector sometimes used by Amazon
+            price_el = div.find("span", {"class": "a-offscreen"})
+
+        if price_el:
+            price_text = price_el.get_text(strip=True).replace(",", "").replace("₹", "")
+            try:
+                price = float(price_text)
+            except ValueError:
+                price = None
+        else:
+            price = None
+        # prices on best seller pages vary
+        items.append({
+            "site": "amazon",
+            "url": product_url,
+            "title": title,
+            "price": price,
+            "image": img,
+        })
+    return items

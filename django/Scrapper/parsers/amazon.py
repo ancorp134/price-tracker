@@ -62,7 +62,7 @@ def get_amazon_featured():
     url = "https://www.amazon.in/gp/bestsellers/"
     r = requests.get(url, headers=HEADERS)
     soup = BeautifulSoup(r.content, "html.parser")
-
+    
     items = []
     for div in soup.find_all("div", class_="p13n-sc-uncoverable-faceout"):
         title = div.find("img")["alt"]

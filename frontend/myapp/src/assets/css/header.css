@@ -1,0 +1,19 @@
+/* Custom styles for dark dropdown */
+.dark-dropdown .dropdown-menu {
+  background-color: #212529; /* Bootstrap bg-dark */
+  color: white !important;
+}
+
+.dark-dropdown .dropdown-item {
+  color: white;
+}
+
+.dark-dropdown .dropdown-item:hover,
+.dark-dropdown .dropdown-item:focus {
+  background-color: #343a40; /* Slightly lighter dark on hover */
+  color: white;
+}
+
+#navbarScrollingDropdown{
+    color: white;
+}

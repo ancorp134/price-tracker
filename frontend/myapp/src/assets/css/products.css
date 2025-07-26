@@ -1,0 +1,48 @@
+/* Ensure cards stretch to equal height */
+.row .col {
+  display: flex;
+}
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Fill available height */
+  width: 100%;
+}
+
+.product-card .p-4 {
+  flex: 1; /* Push button to bottom */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.product-card img{
+    width: 100%;
+}
+
+.product-card.dark{
+    background-color: #242629;
+}
+
+.product-card.dark h4{
+    color: #fffffe;
+    text-decoration: none;
+    font-weight: 300;
+}
+
+.product-card a {
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.product-card.dark p{
+    color: #94a1b2;
+   
+    font-weight: 300;
+}
+
+.product-card.dark button {
+    background-color: #7f5af0;
+    color : #fffffe;
+}

@@ -1,12 +1,35 @@
+# Django & DRF
 Django>=4.2
-djangorestframework
+djangorestframework>=3.14
+
+# Database
 psycopg2-binary
 dj-database-url
 python-decouple
+
+# Authentication & Security
+djangorestframework-simplejwt==5.3.1
+django-cors-headers>=3.14
+
+# Web Server
 gunicorn
+daphne  # For ASGI (WebSockets)
+
+# Utilities
 django-nanoid-field==0.1.4
 nanoid==2.0.0
-djangorestframework-simplejwt==5.3.1
+
+# Scraping
 requests
 beautifulsoup4
-django-cors-headers>=3.14
+
+# Async / WebSocket
+channels>=4.0
+channels-redis>=4.0
+
+# Celery (Task Queue)
+celery>=5.3
+redis
+
+# Kafka Integration
+confluent-kafka>=2.3.0

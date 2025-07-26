@@ -6,7 +6,7 @@ import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import "../assets/css/header.css";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCoffee } from '@fortawesome/free-solid-svg-icons';
+import { faMoon } from '@fortawesome/free-solid-svg-icons';
 
 
 function Header() {
@@ -14,7 +14,7 @@ function Header() {
     <Navbar expand="lg" className="bg-dark">
       <Container fluid>
         <Navbar.Brand href="#" className="text-white">
-          Navbar scroll
+          Price Tracker
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="navbarScroll" />
         <Navbar.Collapse id="navbarScroll">
@@ -51,16 +51,8 @@ function Header() {
               Link
             </Nav.Link>
           </Nav>
-          <FontAwesomeIcon icon="fa-solid fa-mug-hot" />
-          <Form className="d-flex">
-            <Form.Control
-              type="search"
-              placeholder="Search"
-              className="me-2"
-              aria-label="Search"
-            />
-            <Button variant="outline-success">Search</Button>
-          </Form>
+          <FontAwesomeIcon icon={faMoon} style={{ color: "white", fontSize: "20px" }} />
+          
         </Navbar.Collapse>
       </Container>
     </Navbar>

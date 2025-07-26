@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 from decouple import config
 import dj_database_url
-
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -43,7 +43,10 @@ INSTALLED_APPS = [
     'trackerapi',
     'rest_framework_simplejwt',
     "corsheaders",
+    "channels",
 ]
+
+ASGI_APPLICATION = 'tracker.asgi.application'
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -58,12 +61,28 @@ MIDDLEWARE = [
 
 CORS_ALLOW_ALL_ORIGINS = True
 
+ALLOWED_HOSTS = ['*']
+
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
 
 ROOT_URLCONF = 'tracker.urls'
+
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {"hosts": [("redis", 6379)]},
+    },
+}
+
+CELERY_BROKER_URL = 'redis://redis:6379/0'
+CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
+
+KAFKA_BROKER_URL = os.getenv('KAFKA_BROKER_URL', 'redpanda:9092')
 
 TEMPLATES = [
     {
@@ -132,3 +151,18 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    'scrape-every-minute': {
+        'task': 'trackerapi.tasks.scrape_and_publish',
+        'schedule': 60.0,
+    },
+    'consume-kafka': {
+        'task': 'trackerapi.tasks.consume_and_broadcast',
+        'schedule': 10.0,
+    },
+}

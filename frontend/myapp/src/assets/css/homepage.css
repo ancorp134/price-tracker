@@ -1,0 +1,21 @@
+.home.dark{
+     background: linear-gradient(to right, #242629,#242629)
+}
+
+.home.light{
+    background: linear-gradient(to right, #2563eb, #4f46e5);
+}
+
+
+.btn.dark{
+    background-color: #7f5af0;
+    color : #fffffe;
+}
+
+.home h1.dark{
+    color : #fffffe;
+}
+
+.lead.dark{
+    color : #94a1b2;
+}

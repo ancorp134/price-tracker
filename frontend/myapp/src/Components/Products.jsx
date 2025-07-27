@@ -104,14 +104,30 @@ function Products() {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    const socket = new WebSocket("ws://localhost:8000/ws/featured/");
-    socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      setProducts((prev) => [data, ...prev]);
-      console.log(products)
-    };
+    const socket = new WebSocket(`ws://${window.location.hostname}:8000/ws/featured/`);
     
-    return () => socket.close();
+    socket.onopen = () => {
+        console.log("✅ WebSocket connected");
+    };
+
+    socket.onmessage = (event) => {
+        console.log("📩 Message from server:", event.data);
+        setProducts(JSON.parse(event.data))
+    };
+
+    socket.onclose = (event) => {
+        console.log("❌ WebSocket disconnected", event);
+    };
+
+    socket.onerror = (error) => {
+        console.error("⚠️ WebSocket error", error);
+    };
+
+    return () => {
+        console.log(products)
+        console.log("Cleaning up WebSocket...");
+        socket.close();
+    };
   }, []);
 
 
@@ -121,8 +137,8 @@ function Products() {
         Trending Deals You Can't Miss
       </h2>
       <div className="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4">
-        {ALL_PRODUCTS_DATA.map((product) => (
-          <div className="col" key={product.id}>
+        {products.map((product,index) => (
+          <div className="col" key={index}>
             <ProductCard product={product}  />
           </div>
         ))}

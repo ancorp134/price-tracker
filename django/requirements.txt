@@ -26,10 +26,3 @@ beautifulsoup4
 # Async / WebSocket
 channels>=4.0
 channels-redis>=4.0
-
-# Celery (Task Queue)
-celery>=5.3
-redis
-
-# Kafka Integration
-confluent-kafka>=2.3.0

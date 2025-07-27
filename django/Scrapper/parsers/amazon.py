@@ -25,8 +25,16 @@ def parse_amazon_product(url):
         return None
 
     # Safely extract data
-    title_tag = soup.find(id="productTitle")
-    title = title_tag.get_text(strip=True) if title_tag else None
+    title_div = soup.find("div", class_="p13n-sc-truncate-desktop-type2")
+
+    title = None
+    if title_div:
+    # Option 1: Get the title from the 'title' attribute (most reliable for full text)
+        title = title_div.get('title')
+    
+    if not title: # Fallback to text content if title attribute is not present (less likely for this div)
+        title = title_div.get_text(strip=True)
+
 
     price_el = soup.find("span", {"class": "a-price-whole"})
     if not price_el:
@@ -62,13 +70,29 @@ def get_amazon_featured():
     url = "https://www.amazon.in/gp/bestsellers/"
     r = requests.get(url, headers=HEADERS)
     soup = BeautifulSoup(r.content, "html.parser")
-    
+    # print(soup.prettify())
     items = []
     for div in soup.find_all("div", class_="p13n-sc-uncoverable-faceout"):
-        title = div.find("img")["alt"]
+        
         img = div.find("img")["src"]
         product_url = "https://www.amazon.in" + div.find("a")["href"]
-        price_el = div.find("span", {"class": "a-price-whole"})
+        
+
+        # print(product_url)
+
+        title_div = soup.find("div", class_="p13n-sc-truncate-desktop-type2")
+
+        title = None
+        if title_div:
+        # Option 1: Get the title from the 'title' attribute (most reliable for full text)
+            title = title_div.get('title')
+        
+        if not title: # Fallback to text content if title attribute is not present (less likely for this div)
+            title = title_div.get_text(strip=True)
+
+        print(title)
+
+        price_el = div.find("span", {"class": "_cDEzb_p13n-sc-price_3mJ9Z"})
         if not price_el:
             # Try another selector sometimes used by Amazon
             price_el = div.find("span", {"class": "a-offscreen"})
@@ -82,6 +106,7 @@ def get_amazon_featured():
         else:
             price = None
         # prices on best seller pages vary
+        print(price)
         items.append({
             "site": "amazon",
             "url": product_url,

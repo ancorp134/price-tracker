@@ -8,6 +8,20 @@ import jwt
 from django.conf import settings
 from rest_framework import status
 from django.contrib.auth.hashers import check_password
+from Scrapper.parsers.amazon import get_amazon_featured
+from django.http import JsonResponse
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
+
+
+class GetFeaturedProducts(APIView):
+    def get(self, request):
+        try:
+            items = get_amazon_featured()
+            return Response({"products": items}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 def get_authenticated_user(request):
@@ -99,3 +113,16 @@ class UserProfileUpdateView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# def test_broadcast(request):
+#     layer = get_channel_layer()
+    
+#     try:
+#         items = get_amazon_featured()
+#         async_to_sync(layer.group_send)(
+#         "featured_group", {"type": "send_update", "data": items}
+#         )
+#         return JsonResponse({"status": "sent"})
+#     except:
+#         pass

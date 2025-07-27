@@ -79,10 +79,7 @@ CHANNEL_LAYERS = {
     },
 }
 
-CELERY_BROKER_URL = 'redis://redis:6379/0'
-CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
 
-KAFKA_BROKER_URL = os.getenv('KAFKA_BROKER_URL', 'redpanda:9092')
 
 TEMPLATES = [
     {
@@ -154,15 +151,3 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 
-from celery.schedules import crontab
-
-CELERY_BEAT_SCHEDULE = {
-    'scrape-every-minute': {
-        'task': 'trackerapi.tasks.scrape_and_publish',
-        'schedule': 60.0,
-    },
-    'consume-kafka': {
-        'task': 'trackerapi.tasks.consume_and_broadcast',
-        'schedule': 10.0,
-    },
-}

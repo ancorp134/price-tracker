@@ -14,7 +14,6 @@ services:
     depends_on:
       - db
       - redis
-      - redpanda
     env_file:
       - .env
 
@@ -43,44 +42,6 @@ services:
     image: redis:6
     ports:
       - "6379:6379"
-
-  redpanda:
-    image: docker.redpanda.com/redpandadata/redpanda:v23.2.10
-    container_name: redpanda
-    ports:
-      - "9092:9092"
-    command: >
-      redpanda start
-      --overprovisioned
-      --smp 1
-      --memory 1G
-      --reserve-memory 0M
-      --node-id 0
-      --check=false
-      --advertise-kafka-addr redpanda:9092
-
-  celery-worker:
-    build: ./django
-    command: celery -A tracker worker --loglevel=info
-    volumes:
-      - ./django:/app
-    depends_on:
-      - web
-      - redis
-      - redpanda
-    env_file:
-      - .env
-
-  celery-beat:
-    build: ./django
-    command: celery -A tracker beat --loglevel=info
-    volumes:
-      - ./django:/app
-    depends_on:
-      - web
-      - redis
-    env_file:
-      - .env
 
 volumes:
   postgres_data:

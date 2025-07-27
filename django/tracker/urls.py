@@ -16,11 +16,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from trackerapi.views import UserLoginView,UserRegistrationView,UserProfileUpdateView
+from trackerapi.views import UserLoginView,UserRegistrationView,UserProfileUpdateView,GetFeaturedProducts
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/login/',UserLoginView.as_view()),
     path('api/v1/register/',UserRegistrationView.as_view()),
     path('api/v1/user/<str:id>/update/',UserProfileUpdateView.as_view()),
+    path('api/featured-products/', GetFeaturedProducts.as_view(), name='featured-products'),
+    # path("test-broadcast/", test_broadcast),
 ]

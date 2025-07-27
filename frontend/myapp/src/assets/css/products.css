@@ -1,48 +1,81 @@
-/* Ensure cards stretch to equal height */
-.row .col {
-  display: flex;
-}
-
+/* Card container */
 .product-card {
+  border-radius: 15px;
+  background-color: #1e1e1e;
+  color: #fff;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Image wrapper */
+.product-image-wrapper {
+  height: 180px;
+  overflow: hidden;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+  background: #2a2a2a;
   display: flex;
-  flex-direction: column;
-  height: 100%; /* Fill available height */
+  align-items: center;
+  justify-content: center;
+}
+
+.product-image {
   width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
-.product-card .p-4 {
-  flex: 1; /* Push button to bottom */
+/* Placeholder for missing image */
+.image-placeholder {
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background-color: #2a2a2a;
+  color: #ccc;
+  font-size: 14px;
+  padding: 10px;
+  text-align: center;
 }
 
-.product-card img{
-    width: 100%;
+/* Title */
+.product-title {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+  text-decoration: none;
+  margin-bottom: 10px;
 }
 
-.product-card.dark{
-    background-color: #242629;
+.product-title:hover {
+  color: #8b5cf6;
 }
 
-.product-card.dark h4{
-    color: #fffffe;
-    text-decoration: none;
-    font-weight: 300;
+/* Price */
+.product-price {
+  font-size: 13px;
+  color: #ccc;
+  margin-bottom: 15px;
 }
 
-.product-card a {
-    text-decoration: none;
-    font-weight: bold;
+.product-price span {
+  font-weight: bold;
+  color: #fff;
 }
 
-.product-card.dark p{
-    color: #94a1b2;
-   
-    font-weight: 300;
+/* Button */
+.track-btn {
+  background-color: #8b5cf6;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 8px;
 }
 
-.product-card.dark button {
-    background-color: #7f5af0;
-    color : #fffffe;
+.track-btn:hover {
+  background-color: #7c3aed;
 }

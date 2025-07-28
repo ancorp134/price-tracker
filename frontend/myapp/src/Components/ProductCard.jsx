@@ -1,5 +1,5 @@
 function ProductCard({ product }) {
-  console.log(product)
+  // console.log(product)
   return (
     <div className="product-card card shadow-sm border-0 h-100">
       <a href="#">

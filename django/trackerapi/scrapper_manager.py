@@ -19,7 +19,7 @@ def start_scraper(get_amazon_featured):
                 "featured_group",
                 {"type": "notify_update"}
             )
-            time.sleep(10)
+            time.sleep(3600)
 
     threading.Thread(target=broadcast_loop, daemon=True).start()
 

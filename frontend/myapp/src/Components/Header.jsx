@@ -47,7 +47,7 @@ function Header() {
               </NavDropdown.Item>
             </NavDropdown>
 
-            <Nav.Link href="#" disabled className="bg-dark text-white">
+            <Nav.Link href="#" disabled className="text-white">
               Link
             </Nav.Link>
           </Nav>

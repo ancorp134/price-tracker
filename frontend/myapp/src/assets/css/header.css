@@ -1,4 +1,9 @@
 /* Custom styles for dark dropdown */
+.bg-dark.header{
+  background-color: #7f5af0 !important;
+}
+
+
 .dark-dropdown .dropdown-menu {
   background-color: #16161a; /* Bootstrap bg-dark */
   color: white !important;

@@ -102,17 +102,31 @@ const ALL_PRODUCTS_DATA = [
 function Products() {
 
   const [products, setProducts] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     const socket = new WebSocket(`ws://${window.location.hostname}:8000/ws/featured/`);
-    
+
     socket.onopen = () => {
         console.log("✅ WebSocket connected");
+        socket.send(JSON.stringify({ action: "get_page", page: 1 }));
     };
 
     socket.onmessage = (event) => {
-        console.log("📩 Message from server:", event.data);
-        setProducts(JSON.parse(event.data))
+        const data = JSON.parse(event.data);
+        console.log("📩 Message from server:", data);
+
+        if (data.products) {
+            setProducts(Array.isArray(data.products) ? data.products : []);
+            setTotalPages(data.total_pages);
+            setCurrentPage(data.page);
+        }
+
+        if (data.type === "update_available") {
+            console.log("🔔 New data available, refreshing...");
+            socket.send(JSON.stringify({ action: "get_page", page: currentPage }));
+        }
     };
 
     socket.onclose = (event) => {
@@ -124,12 +138,10 @@ function Products() {
     };
 
     return () => {
-        console.log(products)
         console.log("Cleaning up WebSocket...");
         socket.close();
     };
-  }, []);
-
+}, [currentPage]);
 
   return (
     <section id="featured" className="py-5">

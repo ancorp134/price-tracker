@@ -90,7 +90,7 @@ def get_amazon_featured():
         if not title: # Fallback to text content if title attribute is not present (less likely for this div)
             title = title_div.get_text(strip=True)
 
-        print(title)
+        # print(title)
 
         price_el = div.find("span", {"class": "_cDEzb_p13n-sc-price_3mJ9Z"})
         if not price_el:
@@ -106,7 +106,7 @@ def get_amazon_featured():
         else:
             price = None
         # prices on best seller pages vary
-        print(price)
+        # print(price)
         items.append({
             "site": "amazon",
             "url": product_url,

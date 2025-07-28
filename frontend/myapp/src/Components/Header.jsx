@@ -11,7 +11,7 @@ import { faMoon } from '@fortawesome/free-solid-svg-icons';
 
 function Header() {
   return (
-    <Navbar expand="lg" className="bg-dark">
+    <Navbar expand="lg" className="bg-dark header">
       <Container fluid>
         <Navbar.Brand href="#" className="text-white">
           Price Tracker

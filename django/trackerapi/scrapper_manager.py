@@ -9,12 +9,12 @@ def start_scraper(get_amazon_featured):
     def broadcast_loop():
         channel_layer = get_channel_layer()
         while True:
-            print("Scraper running...")
+            # print("Scraper running...")
             new_products = get_amazon_featured()
             if new_products:
                 scrapped_products.clear()
                 scrapped_products.extend(new_products)
-            print(f"✅ Scraped {len(scrapped_products)} products")
+            # print(f"✅ Scraped {len(scrapped_products)} products")
             async_to_sync(channel_layer.group_send)(
                 "featured_group",
                 {"type": "notify_update"}

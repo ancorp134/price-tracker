@@ -80,15 +80,15 @@ def get_amazon_featured():
 
         # print(product_url)
 
-        title_div = soup.find("div", class_="p13n-sc-truncate-desktop-type2")
+        title_div = div.find("div", class_="p13n-sc-truncate-desktop-type2")
 
         title = None
         if title_div:
         # Option 1: Get the title from the 'title' attribute (most reliable for full text)
-            title = title_div.get('title')
-        
-        if not title: # Fallback to text content if title attribute is not present (less likely for this div)
             title = title_div.get_text(strip=True)
+        
+        # print(title)
+            
 
         # print(title)
 

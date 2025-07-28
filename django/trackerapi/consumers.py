@@ -19,7 +19,7 @@ class FeaturedConsumer(AsyncWebsocketConsumer):
 
         if data.get("action") == "get_page":
             page = int(data.get("page", 1))
-            print(len(scrapped_products))
+            # print(len(scrapped_products))
             # Handle empty product list safely
             if not scrapped_products:
                 await self.send(text_data=json.dumps({

@@ -20,7 +20,7 @@ function ProductCard({ product }) {
         </div>
       </a>
       <div className="card-body text-center p-3">
-        <a href="" className="product-title">
+        <a href={product.url} className="product-title" target="blank">
           {product.title}
         </a>
         <p className="product-price">

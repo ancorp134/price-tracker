@@ -59,8 +59,8 @@
   /* ✅ Truncate title to 3 lines */
   overflow: hidden;
   text-overflow: ellipsis;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
+  white-space: nowrap;
+  text-align: center;
 }
 
 .product-title:hover {

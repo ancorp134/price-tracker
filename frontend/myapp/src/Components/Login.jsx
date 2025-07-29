@@ -1,30 +1,61 @@
-import React from "react";
+import React, { useState } from "react";
 import { Container, Row, Col, Card, Button, Form } from "react-bootstrap";
+import axios from "axios"
+import { useNavigate } from "react-router-dom";
 
 function Login() {
+  const [email,setEmail] = useState("")
+  const [password , setPassword] = useState("")
+  const navigate = useNavigate()
+
+ async function handleLogin(e) {
+  e.preventDefault();
+  try {
+    const res = await axios.post(
+      "http://localhost:8000/api/v1/login/",
+      {
+        email,
+        password
+      },
+      
+      {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    console.log("Login Success:", res.data);
+    navigate('/');
+  } catch(err){
+    console.log("Login failed" , err.response ? err.response.data : err.response)
+  }
+}
+
   return (
     <Container fluid>
       <Row className="d-flex justify-content-center align-items-center vh-100">
         <Col md={6} lg={4}>
           <Card
-            className="bg-dark text-white my-5 mx-auto"
+            className="bg-dark text-white my-4 mx-auto"
             style={{ borderRadius: "1rem" }}
           >
             <Card.Body className="p-5 d-flex flex-column align-items-center">
               <h2 className="fw-bold mb-2 text-uppercase">Login</h2>
-              <p className="text-white-50 mb-5">
+              <p className="text-white-50 mb-3">
                 Please enter your login and password!
               </p>
 
-              <Form className="w-100 px-4">
+              <Form className="w-100 px-4" onSubmit={handleLogin}>
                 <Form.Group className="mb-4">
                   <Form.Label>Email address</Form.Label>
-                  <Form.Control type="email" size="lg" />
+                  <Form.Control type="email" size="lg" value={email} onChange={(e)=> setEmail(e.target.value)} />
                 </Form.Group>
 
                 <Form.Group className="mb-4">
                   <Form.Label>Password</Form.Label>
-                  <Form.Control type="password" size="lg" />
+                  <Form.Control type="password" size="lg" value={password} onChange={(e)=> setPassword(e.target.value)}/>
                 </Form.Group>
 
                 <div className="d-flex justify-content-end mb-3">
@@ -36,7 +67,8 @@ function Login() {
                 <Button
                   variant="outline-light"
                   size="lg"
-                  className="w-100 mb-4"
+                  className="w-100 mb-4" 
+                  type="submit"
                 >
                   Login
                 </Button>

@@ -14,6 +14,7 @@ from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
 
+
 class GetFeaturedProducts(APIView):
     def get(self, request):
         try:
@@ -51,6 +52,9 @@ def get_token_for_user(user):
     }
 
 class UserLoginView(APIView):
+
+    
+
     def post(self,request):
         email = request.data.get('email')
         password = request.data.get('password')
@@ -75,13 +79,24 @@ class UserLoginView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
         token = get_token_for_user(user)
-        return Response(
+        response = Response(
             {
                 "message": "sucesss",
-                "token" : token
+                "token" : token['access']
             },
             status=status.HTTP_200_OK
         )
+
+
+        response.set_cookie(
+            key= '__Host-rfTk',
+            value=token['refresh'],
+            httponly=True,
+            secure=True,
+            samesite='Strict'    
+        )
+
+        return response
     
 class UserRegistrationView(APIView):
 

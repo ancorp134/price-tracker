@@ -14,6 +14,7 @@ from pathlib import Path
 from decouple import config
 import dj_database_url
 import os
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -59,7 +60,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -68,6 +69,10 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
+
+CORS_ALLOW_CREDENTIALS = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
 
 ROOT_URLCONF = 'tracker.urls'
 
@@ -79,6 +84,24 @@ CHANNEL_LAYERS = {
     },
 }
 
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),  # Short-lived access token
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),    # Long-lived refresh token
+    'ROTATE_REFRESH_TOKENS': True,                 # Refresh token rotation (good for security)
+    'BLACKLIST_AFTER_ROTATION': True,              # Old refresh tokens become invalid after rotation
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,            # Use your Django secret key
+    'AUTH_HEADER_TYPES': ('Bearer',),             # Expect Authorization: Bearer <token>
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+}
 
 
 TEMPLATES = [

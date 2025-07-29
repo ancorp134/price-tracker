@@ -7,14 +7,14 @@ import NavDropdown from "react-bootstrap/NavDropdown";
 import "../assets/css/header.css";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMoon } from '@fortawesome/free-solid-svg-icons';
-
+import { NavLink } from "react-router-dom";
 
 function Header() {
   return (
     <Navbar expand="lg" className="bg-dark header">
       <Container fluid>
-        <Navbar.Brand href="#" className="text-white">
-          Price Tracker
+        <Navbar.Brand as={NavLink} to="/" className="text-white">
+          PricePulse
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="navbarScroll" />
         <Navbar.Collapse id="navbarScroll">
@@ -23,7 +23,7 @@ function Header() {
             style={{ maxHeight: "100px" }}
             navbarScroll
           >
-            <Nav.Link href="#action1" className="text-white">
+            <Nav.Link as={NavLink} to="/" className="text-white">
               Home
             </Nav.Link>
             <Nav.Link href="#action2" className="text-white">
@@ -47,8 +47,8 @@ function Header() {
               </NavDropdown.Item>
             </NavDropdown>
 
-            <Nav.Link href="#" disabled className="text-white">
-              Link
+            <Nav.Link as={NavLink} to="/login"  className="text-white">
+              Login
             </Nav.Link>
           </Nav>
           <FontAwesomeIcon icon={faMoon} style={{ color: "white", fontSize: "20px" }} />

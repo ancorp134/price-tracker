@@ -18,6 +18,7 @@ def parse_amazon_product(url):
         return None
 
     soup = BeautifulSoup(r.content, "html.parser")
+    # print(soup.prettify())
 
     # Check if we were blocked
     if soup.find("form", action="/errors/validateCaptcha"):
@@ -25,15 +26,12 @@ def parse_amazon_product(url):
         return None
 
     # Safely extract data
-    title_div = soup.find("div", class_="p13n-sc-truncate-desktop-type2")
-
     title = None
-    if title_div:
-    # Option 1: Get the title from the 'title' attribute (most reliable for full text)
-        title = title_div.get('title')
+    title = soup.find("span", {"id" : "productTitle"})
+    if title:
+        title = title.get_text(strip=True)
+    # print(title)
     
-    if not title: # Fallback to text content if title attribute is not present (less likely for this div)
-        title = title_div.get_text(strip=True)
 
 
     price_el = soup.find("span", {"class": "a-price-whole"})
@@ -56,6 +54,10 @@ def parse_amazon_product(url):
     # Debug logs
     if not title or not price or not img:
         print(f"⚠️ Missing fields for {url}: title={title}, price={price}, image={img}")
+
+    # print(url)
+    # print(price)
+    # print(img)
 
     return {
         "site": "amazon",
@@ -90,7 +92,7 @@ def get_amazon_featured():
         # print(title)
             
 
-        # print(title)
+        
 
         price_el = div.find("span", {"class": "_cDEzb_p13n-sc-price_3mJ9Z"})
         if not price_el:

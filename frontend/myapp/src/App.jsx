@@ -1,18 +1,23 @@
 // import { useState } from 'react'
 import Header from './Components/Header'
 import Homepage from './Components/Homepage'
-import Products from './Components/Products'
 import "./assets/css/main.css"
+import Login from './Components/Login'
+import { BrowserRouter , Routes, Route} from "react-router-dom"
+
 
 function App() {
   
 
   return (
-    <>
+    <BrowserRouter>
       <Header></Header>
-      <Homepage></Homepage>
-      <Products></Products>
-    </>
+      <Routes>
+        <Route path='/' element= {<Homepage></Homepage>}></Route>
+        <Route path='/login' element= {<Login></Login>}></Route>
+      </Routes>
+      
+    </BrowserRouter>
   )
 }
 

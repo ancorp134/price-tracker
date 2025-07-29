@@ -1,4 +1,5 @@
 import "../assets/css/homepage.css"
+import Products from './Products'
 
 function Homepage(){
 
@@ -25,6 +26,8 @@ function Homepage(){
         </div>
 
     </section>  
+
+    <Products></Products>
     </div>
     )
 }

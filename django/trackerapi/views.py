@@ -130,14 +130,27 @@ class UserProfileUpdateView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# def test_broadcast(request):
-#     layer = get_channel_layer()
-    
-#     try:
-#         items = get_amazon_featured()
-#         async_to_sync(layer.group_send)(
-#         "featured_group", {"type": "send_update", "data": items}
-#         )
-#         return JsonResponse({"status": "sent"})
-#     except:
-#         pass
+class RefreshTokenView(APIView):
+    def post(self,request):
+        refresh_token = request.COOKIES.get('__Host-rfTk')
+        if not refresh_token:
+            return Response({"error" : "Refresh Token Not Provided"} , status=401)
+        
+        try:
+            payload = jwt.decode(refresh_token,settings.SECRET_KEY,algorithms=['HS256'])
+            user_id =  payload['user_id']
+            if not user_id:
+                return Response({"error" : "Invalid Token"} , status=401)
+            
+            refresh = RefreshToken(refresh_token)
+            new_access_token = str(refresh.access_token)
+            return Response({'access' : new_access_token} , status=200)
+        
+        except jwt.ExpiredSignatureError:
+            return Response({"error" : "Token Expired"} , status=401)
+        
+class UserLogoutView(APIView):
+    def post(self,request):
+        response = Response({"message" : "Log Out Successfully..."}, status=200)
+        response.delete_cookie('__Host-rfTk')
+        return response

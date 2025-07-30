@@ -8,8 +8,10 @@ import "../assets/css/header.css";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMoon } from '@fortawesome/free-solid-svg-icons';
 import { NavLink } from "react-router-dom";
+import { useAuth } from "../Context/AuthContext";
 
 function Header() {
+  const {logout} = useAuth()
   return (
     <Navbar expand="lg" className="bg-dark header">
       <Container fluid>
@@ -51,6 +53,9 @@ function Header() {
               Login
             </Nav.Link>
           </Nav>
+          <Nav.Link onClick={logout}  className="text-white">
+              Logout
+            </Nav.Link>
           <FontAwesomeIcon icon={faMoon} style={{ color: "white", fontSize: "20px" }} />
           
         </Navbar.Collapse>

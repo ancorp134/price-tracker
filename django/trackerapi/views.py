@@ -1,156 +1,179 @@
-from django.shortcuts import render,get_object_or_404
-from rest_framework.views import APIView
-from .models import UserModel,TrackedProduct,PriceHistory
-from .serializers import UserSerializer,TrackedProductSerializer,PriceHistorySerializer
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.response import Response
+# trackerapi/views.py
 import jwt
+from datetime import datetime, timedelta
 from django.conf import settings
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.authentication import SessionAuthentication  # optional, not used here
+from .models import UserModel
+from .serializers import UserSerializer
 from django.contrib.auth.hashers import check_password
-from Scrapper.parsers.amazon import get_amazon_featured
-from django.http import JsonResponse
-from asgiref.sync import async_to_sync
-from channels.layers import get_channel_layer
+
+# token lifetimes
+ACCESS_TOKEN_LIFETIME = timedelta(minutes=15)
+REFRESH_TOKEN_LIFETIME = timedelta(days=7)
 
 
-
-class GetFeaturedProducts(APIView):
-    def get(self, request):
-        try:
-            items = get_amazon_featured()
-            return Response({"products": items}, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
-def get_authenticated_user(request):
-
-    header = request.headers.get('Authorization')
-
-    if not header:
-        return None
-    
-    try:
-        token = header.split(' ')[1]
-        print(token)
-        decode= jwt.decode(token,settings.SECRET_KEY, algorithms=["HS256"])
-        user_id = decode.get('user_id')
-        user = UserModel.objects.get(id=user_id)
-        return user
-    except Exception:
-        return None
-
-def get_token_for_user(user):
-    refresh = RefreshToken()
-    refresh['user_id'] = user.id
-    refresh['email'] = user.email
-    return {
-        'refresh' : str(refresh),
-        'access' : str(refresh.access_token)
+def generate_tokens_for_user(user):
+    """
+    Returns a dict: { 'access': <token>, 'refresh': <token> }
+    Tokens have token_type claim so we can validate usage.
+    """
+    now = datetime.utcnow()
+    access_payload = {
+        'user_id': user.id,
+        'exp': now + ACCESS_TOKEN_LIFETIME,
+        'iat': now,
+        'token_type': 'access'
+    }
+    refresh_payload = {
+        'user_id': user.id,
+        'exp': now + REFRESH_TOKEN_LIFETIME,
+        'iat': now,
+        'token_type': 'refresh'
     }
 
+    access_token = jwt.encode(access_payload, settings.SECRET_KEY, algorithm='HS256')
+    refresh_token = jwt.encode(refresh_payload, settings.SECRET_KEY, algorithm='HS256')
+
+    # jwt.encode returns a str in PyJWT>=2.x; ensure string
+    if isinstance(access_token, bytes):
+        access_token = access_token.decode('utf-8')
+    if isinstance(refresh_token, bytes):
+        refresh_token = refresh_token.decode('utf-8')
+
+    return {'access': access_token, 'refresh': refresh_token}
+
+
+# -------------------------
+# Register
+# -------------------------
+class UserRegisterView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# -------------------------
+# Login
+# -------------------------
 class UserLoginView(APIView):
+    permission_classes = [AllowAny]
 
-    
-
-    def post(self,request):
+    def post(self, request):
         email = request.data.get('email')
         password = request.data.get('password')
 
         if not email or not password:
-            return Response(
-                {"error": "Email and password are required."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"error": "Email and password required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        
         user = UserModel.objects.filter(email=email).first()
-        if user is None:
-            return Response(
-                {"error": "User with this email does not exist."},
-                status=status.HTTP_404_NOT_FOUND
-            )
-            
-        if not check_password(password,user.password):
-            return Response(
-                {"error": "Invalid password."},
-                status=status.HTTP_404_NOT_FOUND
-            )
-        token = get_token_for_user(user)
-        response = Response(
-            {
-                "message": "sucesss",
-                "token" : token['access']
-            },
-            status=status.HTTP_200_OK
-        )
+        if not user:
+            return Response({"error": "User does not exist"}, status=status.HTTP_404_NOT_FOUND)
 
+        # check_password expects a hashed password; ensure serializer hashes on create
+        if not check_password(password, user.password):
+            return Response({"error": "Invalid password"}, status=status.HTTP_401_UNAUTHORIZED)
 
+        tokens = generate_tokens_for_user(user)
+
+        response = Response({
+            "message": "Login successful",
+            "access": tokens['access']
+        }, status=status.HTTP_200_OK)
+
+        # Set refresh token as HttpOnly cookie (works for browsers). For local dev secure=False.
         response.set_cookie(
-            key= '__Host-rfTk',
-            value=token['refresh'],
+            key='refresh_token',
+            value=tokens['refresh'],
             httponly=True,
-            secure=True,
-            samesite='Strict'    
+            secure=not settings.DEBUG,
+            samesite='Strict',
+            max_age=int(REFRESH_TOKEN_LIFETIME.total_seconds())
         )
 
         return response
-    
-class UserRegistrationView(APIView):
-
-    def post(self,request):
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data,status=200)
-        return Response(serializer.errors,status=400)
-    
-    
-class UserProfileUpdateView(APIView):
-
-    def patch(self, request, id):
-        auth_user = get_authenticated_user(request)
-
-        if auth_user is None:
-            return Response({"error": "User not authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
-        
-        
-        if str(auth_user.id) != id:
-            return Response({"error": "You can only update your own profile"}, status=status.HTTP_403_FORBIDDEN)
-        
-        user = get_object_or_404(UserModel, id=id)
-        
-        serializer = UserSerializer(user, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# -------------------------
+# Profile
+# -------------------------
+from .authentication import CustomJWTAuthentication  # import here to avoid circular imports
+
+class UserProfileView(APIView):
+    authentication_classes = [CustomJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
+
+
+# -------------------------
+# Refresh Token (cookie or JSON body)
+# -------------------------
 class RefreshTokenView(APIView):
-    def post(self,request):
-        refresh_token = request.COOKIES.get('__Host-rfTk')
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        # Prefer cookie
+        refresh_token = request.COOKIES.get('refresh_token')
+        # fallback to JSON body for Postman ease
         if not refresh_token:
-            return Response({"error" : "Refresh Token Not Provided"} , status=401)
-        
+            refresh_token = request.data.get('refresh')
+
+        if not refresh_token:
+            return Response({"error": "Refresh token missing"}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
-            payload = jwt.decode(refresh_token,settings.SECRET_KEY,algorithms=['HS256'])
-            user_id =  payload['user_id']
-            if not user_id:
-                return Response({"error" : "Invalid Token"} , status=401)
-            
-            refresh = RefreshToken(refresh_token)
-            new_access_token = str(refresh.access_token)
-            return Response({'access' : new_access_token} , status=200)
-        
+            payload = jwt.decode(refresh_token, settings.SECRET_KEY, algorithms=['HS256'])
         except jwt.ExpiredSignatureError:
-            return Response({"error" : "Token Expired"} , status=401)
-        
+            return Response({"error": "Refresh token expired"}, status=status.HTTP_401_UNAUTHORIZED)
+        except jwt.InvalidTokenError:
+            return Response({"error": "Invalid refresh token"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        if payload.get('token_type') != 'refresh':
+            return Response({"error": "Token provided is not a refresh token"}, status=status.HTTP_400_BAD_REQUEST)
+
+        user_id = payload.get('user_id')
+        try:
+            user = UserModel.objects.get(id=user_id)
+        except UserModel.DoesNotExist:
+            return Response({"detail": "User not found", "code": "user_not_found"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # Issue a new access token (do not rotate refresh here; rotation would require storing/blacklisting)
+        now = datetime.utcnow()
+        access_payload = {
+            'user_id': user.id,
+            'exp': now + ACCESS_TOKEN_LIFETIME,
+            'iat': now,
+            'token_type': 'access'
+        }
+        access_token = jwt.encode(access_payload, settings.SECRET_KEY, algorithm='HS256')
+        if isinstance(access_token, bytes):
+            access_token = access_token.decode('utf-8')
+
+        return Response({"access": access_token}, status=status.HTTP_200_OK)
+
+
+# -------------------------
+# Logout
+# -------------------------
 class UserLogoutView(APIView):
-    def post(self,request):
-        response = Response({"message" : "Log Out Successfully..."}, status=200)
-        response.delete_cookie('__Host-rfTk')
+    # If you want to restrict logout to authenticated users uncomment:
+    # authentication_classes = [CustomJWTAuthentication]
+    # permission_classes = [IsAuthenticated]
+
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        response = Response({"message": "Logged out successfully"}, status=status.HTTP_200_OK)
+        response.delete_cookie('refresh_token')
         return response

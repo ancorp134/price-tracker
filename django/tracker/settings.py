@@ -47,6 +47,9 @@ INSTALLED_APPS = [
     "channels",
 ]
 
+
+
+
 ASGI_APPLICATION = 'tracker.asgi.application'
 
 MIDDLEWARE = [
@@ -87,21 +90,17 @@ CHANNEL_LAYERS = {
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'trackerapi.authentication.CustomJWTAuthentication',
     ),
-    
 }
 
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),  # Short-lived access token
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),    # Long-lived refresh token
-    'ROTATE_REFRESH_TOKENS': True,                 # Refresh token rotation (good for security)
-    'BLACKLIST_AFTER_ROTATION': True,              # Old refresh tokens become invalid after rotation
-    'ALGORITHM': 'HS256',
-    'SIGNING_KEY': SECRET_KEY,            # Use your Django secret key
-    'AUTH_HEADER_TYPES': ('Bearer',),             # Expect Authorization: Bearer <token>
-    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
-}
+# SIMPLE_JWT = {
+#     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+#     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+#     'ROTATE_REFRESH_TOKENS': True,
+#     'BLACKLIST_AFTER_ROTATION': True,
+#     'AUTH_HEADER_TYPES': ('Bearer',),
+# }
 
 
 TEMPLATES = [

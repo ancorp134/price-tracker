@@ -5,17 +5,19 @@ import "./assets/css/main.css";
 import Login from "./Components/Login";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import PrivateRoute from "./Components/PrivateRoute";
+import Dashboard from "./Components/Dashboard";
 
 function App() {
   return (
     <>
       <Header></Header>
       <Routes>
+        <Route path="/" element={<Homepage></Homepage>}></Route>
         <Route
-          path="/"
+          path="/dashboard"
           element={
             <PrivateRoute>
-              <Homepage></Homepage>
+              <Dashboard></Dashboard>
             </PrivateRoute>
           }
         ></Route>

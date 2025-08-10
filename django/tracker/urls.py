@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from trackerapi.views import UserLoginView,UserLogoutView,UserProfileView,UserRegisterView,RefreshTokenView
+from trackerapi.views import UserLoginView,UserLogoutView,UserProfileView,UserRegisterView,RefreshTokenView,TrackProductView
 
 
 urlpatterns = [
@@ -30,5 +30,6 @@ urlpatterns = [
     # path("test-broadcast/", test_broadcast),
     path('api/v1/token/refresh/',RefreshTokenView.as_view()),
     # path('api/v1/test/',Testapi.as_view()),
+    path('api/v1/track-product/',TrackProductView.as_view()),
     
 ]

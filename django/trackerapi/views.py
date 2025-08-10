@@ -6,9 +6,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.authentication import SessionAuthentication  # optional, not used here
-from .models import UserModel
-from .serializers import UserSerializer
+# from rest_framework.authentication import SessionAuthentication  # optional, not used here
+from .models import UserModel,TrackedProduct
+from .serializers import UserSerializer,TrackedProductSerializer
 from django.contrib.auth.hashers import check_password
 
 # token lifetimes
@@ -177,3 +177,28 @@ class UserLogoutView(APIView):
         response = Response({"message": "Logged out successfully"}, status=status.HTTP_200_OK)
         response.delete_cookie('refresh_token')
         return response
+    
+
+
+# Tracked Product Views 
+
+
+class TrackProductView(APIView):
+
+    authentication_classes = [CustomJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+
+    def get(self,request):
+
+        tracked_products = TrackedProduct.objects.filter(user = request.user)
+        serializer = TrackedProductSerializer(tracked_products,many=True)
+        return Response(serializer.data,status=200)
+
+
+    def post(self,request):
+        serializer = TrackedProductSerializer(data = request.data)
+        if serializer.is_valid():
+            serializer.save(user = request.user)
+            return Response(serializer.data, status=200)
+        return Response(serializer.errors,status=400)

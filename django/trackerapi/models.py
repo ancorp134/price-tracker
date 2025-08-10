@@ -18,7 +18,7 @@ class UserModel(models.Model):
 
 class TrackedProduct(models.Model):
     user = models.ForeignKey(UserModel, on_delete=models.CASCADE, related_name="tracked_products")
-    product_url = models.URLField(null=False)
+    product_url = models.URLField(null=False,max_length=1500)
     product_title = models.CharField(max_length=500, null=False)
     current_price = models.FloatField(null=False)
     target_price = models.FloatField(null=False)

@@ -27,7 +27,7 @@ class UserSerializer(serializers.ModelSerializer):
 class TrackedProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = TrackedProduct
-        fields = ['product_url','product_title','current_price','target_price','current_price']
+        fields = ['product_url','product_title','current_price','target_price']
         read_only_fields = ['user']
 
 
